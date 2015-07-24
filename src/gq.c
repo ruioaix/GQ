@@ -5,6 +5,7 @@
 #include "dataset.h"
 #include "net.h"
 #include "preprocess.h"
+#include "process.h"
 
 int main(int argc, char **argv) {
 	setloglevel(LOG_INFO);
@@ -13,6 +14,7 @@ int main(int argc, char **argv) {
 	NET *net = preprocess_NET(op);	
 	int *status = preprocess_STATUS(net);
 	
+	process(net, status);
 
 	free(status);
 	freeNET(net);
