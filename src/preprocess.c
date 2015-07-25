@@ -17,13 +17,15 @@ NET *preprocess_NET(struct OPTION *op) {
 	na.weight = UNWEIGHTED;
 	na.direct = UNDIRECTED;
 	NET *net = createNET(lf, na);
+
+	freeLF(lf);
 		
 	return net;
 }
 
 // 0:S, 1:I, 2:R
 int *preprocess_STATUS(NET *net) {
-	int *status = scalloc(net->core[0]->maxId, sizeof(int));
+	int *status = scalloc(net->core[0]->maxId + 1, sizeof(int));
 	status[0] = 1;
 	return status;
 }
