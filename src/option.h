@@ -14,6 +14,10 @@ struct OPTION {
 
 	int num_line_node;
 	int num_lattice_side;
+
+	double rate_infect;
+	double rate_recover;
+	int STEP;
 };
 
 struct OPTION *setOPTION(int argc, char **argv);

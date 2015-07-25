@@ -26,6 +26,9 @@ static void display_usage(void) {
 	puts("  --num-lattice-side intValue:  ");
 	puts("       the number of the nodes in one lattice side");
 	puts("       so the number of the nodes in lattice is L^2");
+	puts("  --rate-infect doubleValue:  ");
+	puts("  --rate-recover doubleValue:  ");
+	puts("  --STEP intValue:  ");
 	puts("");
 	exit(0);
 }
@@ -40,6 +43,9 @@ static void init_OPTION(struct OPTION *op) {
 	op->ds_direct = false;
 	op->num_line_node = 100;
 	op->num_lattice_side = 50;
+	op->rate_infect = 0.5;
+	op->rate_recover = 0.3;
+	op->STEP = 10;
 }
 
 void freeOPTION(struct OPTION *op) {
@@ -67,6 +73,11 @@ struct OPTION *setOPTION(int argc, char **argv) {
 		{"num-lattice-side", required_argument, NULL, 301},
 		{"ds-crossover", no_argument, NULL, 'c'},
 		{"ds-direct", no_argument, NULL, 'd'},
+
+		{"rate-infect", required_argument, NULL, 302},
+		{"rate-recover", required_argument, NULL, 303},
+		{"STEP", required_argument, NULL, 304},
+
 		{0, 0, 0, 0},
 	};
 	int longIndex = 0;
@@ -103,6 +114,17 @@ struct OPTION *setOPTION(int argc, char **argv) {
 			case 'd':
 				op->ds_direct = true;
 				break;
+
+			case 302:
+				op->rate_infect = strtod(optarg, NULL);
+				break;
+			case 303:
+				op->rate_recover = strtod(optarg, NULL);
+				break;
+			case 304:
+				op->STEP = strtol(optarg, NULL, 10);
+				break;
+
 			case '?':
 				break;
 			default:
@@ -156,4 +178,9 @@ static void info_OPTION(struct OPTION *op) {
 
 	if (op->ds_direct) LOG(LOG_INFO, "net will be directed");
 	else LOG(LOG_INFO, "net will be undirected");
+
+	LOG(LOG_INFO, "Infect Rate is %f", op->rate_infect);
+	LOG(LOG_INFO, "Recover Rate is %f", op->rate_recover);
+	LOG(LOG_INFO, "STEP is %d", op->STEP);
+
 }
