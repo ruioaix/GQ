@@ -1,9 +1,11 @@
 #include "process.h"
 #include "random.h"
+#include "log.h"
+#include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
-void process_core(int maxId, int *degree, int **rela, double rate_infect, double rate_recover, int *numi, int *infected, int*infected_new, int *recovered_new, int *status, int *sign) {
+void process_core(int maxId, int *degree, int **rela, double rate_infect, double rate_recover, int *numi, int *infected, int *status, int *sign, int*infected_new, int *recovered_new) {
 	int i, j, k;
 	int newi = 0, newr = 0;
 	int oldi = *numi;
@@ -17,8 +19,10 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 			for (k = 0; k < degree[snode]; ++k) {
 				int neigh = rela[snode][k];
 				if (status[neigh] == 1) ++count;
+				//LOG(LOG_DBG, "neigh %d, status %d", neigh, status[neigh]);
 			}
 			double infect_rate = 1 - pow(1 - rate_infect, count);
+			//LOG(LOG_DBG, "snode %d, count %d, rate_infect %f, infect_rate %f", snode, count, rate_infect, infect_rate);
 			if (randomd() < infect_rate) {
 				infected_new[newi++] = snode;
 			}
@@ -66,7 +70,7 @@ void process(NET *net, double rate_infect, double rate_recover, int STEP, int *s
 
 	int i;
 	for (i = 0; i < maxId + 1; ++i) {
-		if (status[i] == 1) infected[numi++] = 1;	
+		if (status[i] == 1) infected[numi++] = i;	
 	}
 
 	int *infected_new = smalloc((maxId + 1) * sizeof(int));
@@ -77,4 +81,9 @@ void process(NET *net, double rate_infect, double rate_recover, int STEP, int *s
 		process_core(maxId, degree, rela, rate_infect, rate_recover, &numi, infected, status, sign, infected_new, recovered_new);
 		print_status(maxId, status, i);
 	}
+
+	free(infected);
+	free(infected_new);
+	free(recovered_new);
+	free(sign);
 }

@@ -8,7 +8,7 @@
 #include "process.h"
 
 int main(int argc, char **argv) {
-	setloglevel(LOG_INFO);
+	setloglevel(LOG_DBG);
 	struct OPTION *op = setOPTION(argc, argv);
 
 	NET *net = preprocess_NET(op);	
