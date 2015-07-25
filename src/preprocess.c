@@ -13,10 +13,7 @@ NET *preprocess_NET(struct OPTION *op) {
 	if (op->ds_line) lf = lineDS(op->num_line_node, dsa);
 
 
-	struct NETATTR na;
-	na.weight = UNWEIGHTED;
-	na.direct = UNDIRECTED;
-	NET *net = createNET(lf, na);
+	NET *net = createNET(lf);
 
 	freeLF(lf);
 		
@@ -25,7 +22,7 @@ NET *preprocess_NET(struct OPTION *op) {
 
 // 0:S, 1:I, 2:R
 int *preprocess_STATUS(NET *net) {
-	int *status = scalloc(net->core[0]->maxId + 1, sizeof(int));
+	int *status = scalloc(net->maxId + 1, sizeof(int));
 	status[0] = 1;
 	return status;
 }

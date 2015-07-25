@@ -61,9 +61,9 @@ static void print_status(int maxId, int *status, int step) {
 }
 
 void process(NET *net, double rate_infect, double rate_recover, int STEP, int *status) {
-	int maxId = net->core[0]->maxId;
-	int *degree = net->core[0]->degree;
-	int **rela = net->core[0]->rela;
+	int maxId = net->maxId;
+	int *degree = net->degree;
+	int **rela = net->rela;
 
 	int *infected = smalloc((maxId + 1) * sizeof(int));
 	int numi = 0;
