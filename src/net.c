@@ -49,38 +49,35 @@ static inline void set_degree_degreeMax_degreeMin_idNum_NET(int *i1, int *i2, lo
 
 //if objtoi1 != NULL, then objtoi2 must be NULL.
 //if objtoi2 != NULL, then objtoi1 must be NULL.
-static inline void set_rela_aler_NET(int *i1, int *objtoi1, int *i2, int *objtoi2, double *dd, int *degree, int maxId, long linesNum, int ***rela_retn, double ***aler_retn) {
+static inline void set_rela_aler_NET(int *i1, int *i2, double *dd, int *degree, int maxId, long linesNum, int ***rela_retn, double ***aler_retn) {
 	int i;
-	int **rela = NULL;
-	if (objtoi1 || objtoi2) rela = smalloc((maxId + 1) * sizeof(int *));
+	int **rela = rela = smalloc((maxId + 1) * sizeof(int *));
 	double **aler = NULL;
 	if (dd) aler = smalloc((maxId + 1) * sizeof(double *));
 
 	for(i = 0; i < maxId + 1; ++i) {
 		if (degree[i] != 0) {
-			if (rela) rela[i] = smalloc(degree[i] * sizeof(int));
+			rela[i] = smalloc(degree[i] * sizeof(int));
 			if (aler) aler[i] = smalloc(degree[i] * sizeof(double));
 		}
 		else {
-			if (rela) rela[i] = NULL;
+			rela[i] = NULL;
 			if (aler) aler[i] = NULL;
 		}
 	}
 
 	int *temp_count = scalloc(maxId + 1, sizeof(int));
 	for(i=0; i<linesNum; ++i) {
-		if (objtoi1) {
-			int ii1 = i1[i];
-			if (rela) rela[ii1][temp_count[ii1]]=objtoi1[i];
-			if (aler) aler[ii1][temp_count[ii1]]=dd[i];
-			++temp_count[ii1];
+		int ii1 = i1[i];
+		int ii2 = i2[i];
+		rela[ii1][temp_count[ii1]] = ii2;
+		rela[ii2][temp_count[ii2]] = ii1;
+		if (aler) {
+			aler[ii1][temp_count[ii1]] = dd[i];
+			aler[ii2][temp_count[ii2]] = dd[i];
 		}
-		if (objtoi2) {
-			int ii2 = i2[i];
-			if (rela) rela[ii2][temp_count[ii2]]=objtoi2[i];
-			if (aler) aler[ii2][temp_count[ii2]]=dd[i];
-			++temp_count[ii2];
-		}
+		++temp_count[ii1];
+		++temp_count[ii2];
 	}
 	free(temp_count);
 
@@ -119,7 +116,7 @@ NET *createNET(const struct LineFile * const lf) {
 
 	int **rela;
 	double **aler;
-	set_rela_aler_NET(i1, i2, NULL, NULL, NULL, degree, maxId, linesNum, &rela, &aler);
+	set_rela_aler_NET(i1, i2, NULL, degree, maxId, linesNum, &rela, &aler);
 
 	LOG(LOG_INFO, "  Max: %5d, Min: %5d, edgesNum: %5ld", maxId, minId, linesNum);
 	return assignNET(maxId, minId, linesNum, idNum, degreeMax, degreeMin, degree, rela, aler);
