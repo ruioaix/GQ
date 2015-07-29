@@ -29,6 +29,8 @@ static void display_usage(void) {
 	puts("  --rate-infect doubleValue:  ");
 	puts("  --rate-recover doubleValue:  ");
 	puts("  --deltat doubleValue:  ");
+	puts("  --TI doubleValue:  ");
+	puts("  --TR doubleValue:  ");
 	puts("  --STEP intValue:  ");
 	puts("");
 	exit(0);
@@ -47,6 +49,8 @@ static void init_OPTION(struct OPTION *op) {
 	op->rate_infect = 0.5;
 	op->rate_recover = 0.3;
 	op->deltat = 0.01;
+	op->TI = 0.3;
+	op->TR = 1;	
 	op->STEP = 10;
 }
 
@@ -79,6 +83,8 @@ struct OPTION *setOPTION(int argc, char **argv) {
 		{"rate-infect", required_argument, NULL, 302},
 		{"rate-recover", required_argument, NULL, 303},
 		{"deltat", required_argument, NULL, 305},
+		{"TI", required_argument, NULL, 306},
+		{"TR", required_argument, NULL, 307},
 		{"STEP", required_argument, NULL, 304},
 
 		{0, 0, 0, 0},
@@ -126,6 +132,12 @@ struct OPTION *setOPTION(int argc, char **argv) {
 				break;
 			case 305:
 				op->deltat = strtod(optarg, NULL);
+				break;
+			case 306:
+				op->TI = strtod(optarg, NULL);
+				break;
+			case 307:
+				op->TR = strtod(optarg, NULL);
 				break;
 			case 304:
 				op->STEP = strtol(optarg, NULL, 10);
@@ -188,6 +200,8 @@ static void info_OPTION(struct OPTION *op) {
 	LOG(LOG_INFO, "Infect Rate is %f", op->rate_infect);
 	LOG(LOG_INFO, "Recover Rate is %f", op->rate_recover);
 	LOG(LOG_INFO, "Delta T is %f", op->deltat);
+	LOG(LOG_INFO, "TI is %f", op->TI);
+	LOG(LOG_INFO, "TR is %f", op->TR);
 	LOG(LOG_INFO, "STEP is %d", op->STEP);
 
 }

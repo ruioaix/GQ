@@ -18,6 +18,8 @@ struct OPTION {
 	double rate_infect;
 	double rate_recover;
 	double deltat;
+	double TI;
+	double TR;
 	int STEP;
 };
 

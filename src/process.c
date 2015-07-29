@@ -5,10 +5,11 @@
 #include <math.h>
 #include <string.h>
 
-void process_core(int maxId, int *degree, int **rela, double rate_infect, double rate_recover, double deltat, int *numi, int *infected, int *status, int *sign, int*infected_new, int *recovered_new) {
+void process_core(int maxId, int *degree, int **rela, double rate_infect, double deltat, double TI, double TR, int *numi, int *infected, int *numr, int *recovered, int *status, int *sign, int*infected_new, int *recovered_new, int *sus_new, double *TIR) {
 	int i, j, k;
-	int newi = 0, newr = 0;
+	int newi = 0, newr = 0, news = 0;
 	int oldi = *numi;
+	int oldr = *numr;
 	memset(sign, 0, (maxId + 1) * sizeof(int));
 	for (i = 0; i < oldi; ) {
 		int inode = infected[i];
@@ -21,17 +22,33 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 				if (status[neigh] == 1) ++count;
 				//LOG(LOG_DBG, "neigh %d, status %d", neigh, status[neigh]);
 			}
-			double infect_rate = 1 - exp(rate_infect * count * deltat);
+			double infect_rate = 1 - exp( - rate_infect * count * deltat);
 			//LOG(LOG_DBG, "snode %d, count %d, rate_infect %f, infect_rate %f", snode, count, rate_infect, infect_rate);
 			if (randomd() < infect_rate) {
 				infected_new[newi++] = snode;
 			}
 			sign[snode] = 1;
 		}
-		if (randomd() < rate_recover) {
+		TIR[inode] += deltat;
+		if (TIR[inode] >= TI) {
 			recovered_new[newr++] = inode;
 			infected[i] = infected[oldi - 1];
 			--oldi;
+			TIR[inode] = 0;
+		}
+		else {
+			++i;
+		}
+	}
+
+	for (i = 0; i < oldr;) {
+		int rnode = recovered[i];
+		TIR[rnode] += deltat;
+		if (TIR[rnode] >= TR) {
+			sus_new[news++] = rnode;
+			recovered[i] = recovered[oldr - 1];	
+			--oldr;
+			TIR[rnode] = 0;
 		}
 		else {
 			++i;
@@ -40,10 +57,14 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 
 	for (i = 0; i < newr; ++i) {
 		status[recovered_new[i]] = 2;
+		recovered[oldr + i] = recovered_new[i];
 	}
 	for (i = 0; i < newi; ++i) {
 		status[infected_new[i]] = 1;
 		infected[oldi + i] = infected_new[i];
+	}
+	for (i = 0; i < news; ++i) {
+		status[sus_new[i]] = 0;
 	}
 
 	*numi = oldi + newi;
@@ -60,29 +81,43 @@ static void print_status(int maxId, int *status, int step) {
 	fclose(fo);
 }
 
-void process(NET *net, double rate_infect, double rate_recover, double deltat, int STEP, int *status) {
+void process(NET *net, double rate_infect, double deltat, double TI, double TR, int STEP, int *status) {
 	int maxId = net->maxId;
 	int *degree = net->degree;
 	int **rela = net->rela;
 
 	int *infected = smalloc((maxId + 1) * sizeof(int));
 	int numi = 0;
+	int *recovered = smalloc((maxId + 1) * sizeof(int));
+	int numr = 0;
+	double *TIR = smalloc((maxId + 1) * sizeof(double));
 
 	int i;
 	for (i = 0; i < maxId + 1; ++i) {
-		if (status[i] == 1) infected[numi++] = i;	
+		TIR[i] = 0;
+		if (status[i] == 1) {
+			infected[numi++] = i;	
+		}
+		else if (status[i] == 2) {
+			recovered[numr++] = i;
+		}
 	}
 
 	int *infected_new = smalloc((maxId + 1) * sizeof(int));
 	int *recovered_new = smalloc((maxId + 1) * sizeof(int));
+	int *sus_new = smalloc((maxId + 1) * sizeof(int));
 	int *sign = smalloc((maxId + 1) * sizeof(int));
 
+
 	for (i = 0; i < STEP; ++i) {
-		process_core(maxId, degree, rela, rate_infect, rate_recover, deltat, &numi, infected, status, sign, infected_new, recovered_new);
+		process_core(maxId, degree, rela, rate_infect, deltat, TI, TR, &numi, infected, &numr, recovered, status, sign, infected_new, recovered_new, sus_new, TIR);
 		print_status(maxId, status, i);
 	}
 
+	free(TIR);
 	free(infected);
+	free(recovered);
+	free(sus_new);
 	free(infected_new);
 	free(recovered_new);
 	free(sign);
