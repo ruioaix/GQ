@@ -52,5 +52,7 @@ void savePNG(BITMAP *bitmap, const char *path) {
 		png_free(png_ptr, row_pointers[i]);
 	}
 	png_free(png_ptr, row_pointers);
+	png_destroy_write_struct(&png_ptr,  &info_ptr);
+	fclose(fp);
 }
 

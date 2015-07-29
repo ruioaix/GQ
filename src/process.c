@@ -105,6 +105,7 @@ static void save_status(int maxId, int *status, int step, int width, int height)
 	}
 	sprintf(fn, "result/STEP_%05d.png", step + 1);
 	savePNG(&bp, fn);
+	free(bp.pixels);
 }
 
 void process(NET *net, double rate_infect, double deltat, double TI, double TR, int STEP, int *status, int width, int height) {
