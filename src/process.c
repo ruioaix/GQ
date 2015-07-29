@@ -72,8 +72,8 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 
 static void print_status(int maxId, int *status, int step) {
 	char fn[100];
-	sprintf(fn, "STEP_%d", step + 1);
-	FILE *fo = fopen(fn, "w");
+	sprintf(fn, "result/STEP_%d", step + 1);
+	FILE *fo = sfopen(fn, "w");
 	int j;
 	for (j = 0; j < maxId + 1; ++j) {
 		fprintf(fo, "%d\t%d\n", j, status[j]);
