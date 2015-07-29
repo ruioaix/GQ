@@ -14,7 +14,15 @@ int main(int argc, char **argv) {
 	NET *net = preprocess_NET(op);	
 	int *status = preprocess_STATUS(net);
 	
-	process(net, op->rate_infect, op->deltat, op->TI, op->TR, op->STEP, status);
+	int width = 0, height = 0;
+	if (op->ds_line) {
+		width = op->num_line_node;
+		height = 1;
+	}
+	if (op->ds_lattice) {
+		height = width = op->num_lattice_side;
+	}
+	process(net, op->rate_infect, op->deltat, op->TI, op->TR, op->STEP, status, width, height);
 
 	free(status);
 	freeNET(net);

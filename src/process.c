@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "spng.h"
 
 void process_core(int maxId, int *degree, int **rela, double rate_infect, double deltat, double TI, double TR, int *numi, int *infected, int *numr, int *recovered, int *status, int *sign, int*infected_new, int *recovered_new, int *sus_new, double *TIR) {
 	int i, j, k;
@@ -70,18 +71,42 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 	*numi = oldi + newi;
 }
 
-static void print_status(int maxId, int *status, int step) {
+static void save_status(int maxId, int *status, int step, int width, int height) {
 	char fn[100];
-	sprintf(fn, "result/STEP_%d", step + 1);
+	sprintf(fn, "result/STEP_%d.txt", step + 1);
 	FILE *fo = sfopen(fn, "w");
 	int j;
 	for (j = 0; j < maxId + 1; ++j) {
 		fprintf(fo, "%d\t%d\n", j, status[j]);
 	}
 	fclose(fo);
+
+	BITMAP bp;
+	bp.width = width;
+	bp.height = height;
+	bp.pixels = scalloc(bp.width * bp.height, sizeof(PIXEL));
+	int i;
+	for (i = 0; i < maxId + 1; ++i) {
+		int x = i%width;
+		int y = i/width;
+		if (status[i] == 0) {
+			setPIXEL(&bp, x, y, 255, 255, 255);
+		}
+		else if (status[i] == 1) {
+			setPIXEL(&bp, x, y, 255, 0, 0);
+		}
+		else if (status[i] == 2) {
+			setPIXEL(&bp, x, y, 0, 0, 255);
+		}
+		else {
+			LOG(LOG_FATAL, "wrong status");
+		}
+	}
+	sprintf(fn, "result/STEP_%d.png", step + 1);
+	savePNG(&bp, fn);
 }
 
-void process(NET *net, double rate_infect, double deltat, double TI, double TR, int STEP, int *status) {
+void process(NET *net, double rate_infect, double deltat, double TI, double TR, int STEP, int *status, int width, int height) {
 	int maxId = net->maxId;
 	int *degree = net->degree;
 	int **rela = net->rela;
@@ -111,7 +136,7 @@ void process(NET *net, double rate_infect, double deltat, double TI, double TR, 
 
 	for (i = 0; i < STEP; ++i) {
 		process_core(maxId, degree, rela, rate_infect, deltat, TI, TR, &numi, infected, &numr, recovered, status, sign, infected_new, recovered_new, sus_new, TIR);
-		print_status(maxId, status, i);
+		save_status(maxId, status, i, width, height);
 	}
 
 	free(TIR);
