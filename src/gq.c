@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
 	struct OPTION *op = setOPTION(argc, argv);
 
 	NET *net = preprocess_NET(op);	
-	int *status = preprocess_STATUS(net);
+	int *status = preprocess_STATUS(net, op);
 	
 	int width = 0, height = 0;
 	if (op->ds_line) {

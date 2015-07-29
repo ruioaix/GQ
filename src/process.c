@@ -69,6 +69,7 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 	}
 
 	*numi = oldi + newi;
+	*numr = oldr + newr;
 }
 
 static void save_status(int maxId, int *status, int step, int width, int height) {
@@ -102,7 +103,7 @@ static void save_status(int maxId, int *status, int step, int width, int height)
 			LOG(LOG_FATAL, "wrong status");
 		}
 	}
-	sprintf(fn, "result/STEP_%d.png", step + 1);
+	sprintf(fn, "result/STEP_%05d.png", step + 1);
 	savePNG(&bp, fn);
 }
 

@@ -21,8 +21,13 @@ NET *preprocess_NET(struct OPTION *op) {
 }
 
 // 0:S, 1:I, 2:R
-int *preprocess_STATUS(NET *net) {
+int *preprocess_STATUS(NET *net, struct OPTION *op) {
 	int *status = scalloc(net->maxId + 1, sizeof(int));
-	status[0] = 1;
+	if (op->ds_line) {
+		status[net->maxId/2] = 1;
+	}
+	if (op->ds_lattice) {
+		status[net->maxId/2 + op->num_lattice_side/2] = 1;
+	}
 	return status;
 }

@@ -45,13 +45,13 @@ static void init_OPTION(struct OPTION *op) {
 	op->ds_crossover = false;
 	op->ds_direct = false;
 	op->num_line_node = 100;
-	op->num_lattice_side = 50;
-	op->rate_infect = 0.5;
+	op->num_lattice_side = 80;
+	op->rate_infect = 0.3;
 	op->rate_recover = 0.3;
 	op->deltat = 0.01;
-	op->TI = 0.3;
+	op->TI = 1;
 	op->TR = 1;	
-	op->STEP = 10;
+	op->STEP = 1000;
 }
 
 void freeOPTION(struct OPTION *op) {
