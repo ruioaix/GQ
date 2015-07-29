@@ -28,6 +28,7 @@ static void display_usage(void) {
 	puts("       so the number of the nodes in lattice is L^2");
 	puts("  --rate-infect doubleValue:  ");
 	puts("  --rate-recover doubleValue:  ");
+	puts("  --deltat doubleValue:  ");
 	puts("  --STEP intValue:  ");
 	puts("");
 	exit(0);
@@ -45,6 +46,7 @@ static void init_OPTION(struct OPTION *op) {
 	op->num_lattice_side = 50;
 	op->rate_infect = 0.5;
 	op->rate_recover = 0.3;
+	op->deltat = 0.01;
 	op->STEP = 10;
 }
 
@@ -76,6 +78,7 @@ struct OPTION *setOPTION(int argc, char **argv) {
 
 		{"rate-infect", required_argument, NULL, 302},
 		{"rate-recover", required_argument, NULL, 303},
+		{"deltat", required_argument, NULL, 305},
 		{"STEP", required_argument, NULL, 304},
 
 		{0, 0, 0, 0},
@@ -120,6 +123,9 @@ struct OPTION *setOPTION(int argc, char **argv) {
 				break;
 			case 303:
 				op->rate_recover = strtod(optarg, NULL);
+				break;
+			case 305:
+				op->deltat = strtod(optarg, NULL);
 				break;
 			case 304:
 				op->STEP = strtol(optarg, NULL, 10);
@@ -181,6 +187,7 @@ static void info_OPTION(struct OPTION *op) {
 
 	LOG(LOG_INFO, "Infect Rate is %f", op->rate_infect);
 	LOG(LOG_INFO, "Recover Rate is %f", op->rate_recover);
+	LOG(LOG_INFO, "Delta T is %f", op->deltat);
 	LOG(LOG_INFO, "STEP is %d", op->STEP);
 
 }

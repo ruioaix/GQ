@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 	NET *net = preprocess_NET(op);	
 	int *status = preprocess_STATUS(net);
 	
-	process(net, op->rate_infect, op->rate_recover, op->STEP, status);
+	process(net, op->rate_infect, op->rate_recover, op->deltat, op->STEP, status);
 
 	free(status);
 	freeNET(net);

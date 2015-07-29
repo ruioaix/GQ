@@ -5,7 +5,7 @@
 #include <math.h>
 #include <string.h>
 
-void process_core(int maxId, int *degree, int **rela, double rate_infect, double rate_recover, int *numi, int *infected, int *status, int *sign, int*infected_new, int *recovered_new) {
+void process_core(int maxId, int *degree, int **rela, double rate_infect, double rate_recover, double deltat, int *numi, int *infected, int *status, int *sign, int*infected_new, int *recovered_new) {
 	int i, j, k;
 	int newi = 0, newr = 0;
 	int oldi = *numi;
@@ -21,7 +21,7 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 				if (status[neigh] == 1) ++count;
 				//LOG(LOG_DBG, "neigh %d, status %d", neigh, status[neigh]);
 			}
-			double infect_rate = 1 - pow(1 - rate_infect, count);
+			double infect_rate = 1 - exp(rate_infect * count * deltat);
 			//LOG(LOG_DBG, "snode %d, count %d, rate_infect %f, infect_rate %f", snode, count, rate_infect, infect_rate);
 			if (randomd() < infect_rate) {
 				infected_new[newi++] = snode;
@@ -60,7 +60,7 @@ static void print_status(int maxId, int *status, int step) {
 	fclose(fo);
 }
 
-void process(NET *net, double rate_infect, double rate_recover, int STEP, int *status) {
+void process(NET *net, double rate_infect, double rate_recover, double deltat, int STEP, int *status) {
 	int maxId = net->maxId;
 	int *degree = net->degree;
 	int **rela = net->rela;
@@ -78,7 +78,7 @@ void process(NET *net, double rate_infect, double rate_recover, int STEP, int *s
 	int *sign = smalloc((maxId + 1) * sizeof(int));
 
 	for (i = 0; i < STEP; ++i) {
-		process_core(maxId, degree, rela, rate_infect, rate_recover, &numi, infected, status, sign, infected_new, recovered_new);
+		process_core(maxId, degree, rela, rate_infect, rate_recover, deltat, &numi, infected, status, sign, infected_new, recovered_new);
 		print_status(maxId, status, i);
 	}
 
