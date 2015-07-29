@@ -1,0 +1,6 @@
+ffmpeg -r 20 -i result/STEP_%5d.png -vcodec libx264 -vf format=yuv420p movie.mp4
+./run -c --STEP 1000 --TI 1 --rate-infect 0.3 -L --num-lattice-side 80
+./run -c --STEP 1000 --TI 1 --rate-infect 0.3 -l --num-line-node 100
+./run -c --STEP 1000 --TI 0.5 --rate-infect 1 -L --num-lattice-side 80
+./run -c --STEP 1000 --TI 0.3 --rate-infect 2.75 -L --num-lattice-side 80
+./run -c --STEP 1000 --TI 0.7 --rate-infect 4.2 -L --num-lattice-side 80
