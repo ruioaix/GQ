@@ -25,6 +25,7 @@ struct OPTION {
 	bool init_single;
 	bool init_random;
 	int init_random_frequency;
+	int init_random_num;
 };
 
 struct OPTION *setOPTION(int argc, char **argv);

@@ -37,6 +37,9 @@ static void display_usage(void) {
 	puts("  --init-random-frequency intValue:  ");
 	puts("       only available when --init-random is enabled.");
 	puts("       if set to 25 (default), it means that in the beginning, there will be one infected node in every 25 nodes.");
+	puts("  --init-random-num intValue:  ");
+	puts("       only available when --init-random is enabled.");
+	puts("       if set to 25 (default), it means that in the beginning, there will be 25 infected nodes.");
 	puts("");
 	exit(0);
 }
@@ -60,7 +63,8 @@ static void init_OPTION(struct OPTION *op) {
 
 	op->init_single = false;
 	op->init_random = false;
-	op->init_random_frequency = 25;
+	op->init_random_frequency = -1;
+	op->init_random_num = -1;
 }
 
 void freeOPTION(struct OPTION *op) {
@@ -99,6 +103,7 @@ struct OPTION *setOPTION(int argc, char **argv) {
 		{"init-single", no_argument, NULL, 308},
 		{"init-random", no_argument, NULL, 309},
 		{"init-random-frequency", required_argument, NULL, 310},
+		{"init-random-num", required_argument, NULL, 311},
 
 		{0, 0, 0, 0},
 	};
@@ -164,6 +169,9 @@ struct OPTION *setOPTION(int argc, char **argv) {
 			case 310:
 				op->init_random_frequency = strtol(optarg, NULL, 10);
 				break;
+			case 311:
+				op->init_random_num = strtol(optarg, NULL, 10);
+				break;
 
 			case '?':
 				break;
@@ -206,6 +214,12 @@ static void verify_OPTION(struct OPTION *op) {
 			if (op->num_line_node <= op->init_random_frequency) {
 				LOG(LOG_FATAL, "num_line_node <= init_random_frequency, not allowed");
 			}
+			if (op->init_random_num != -1 && op->init_random_frequency != -1) {
+				LOG(LOG_FATAL, "init_random_num and init_random_frequency, please use only one.");
+			}
+			if (op->init_random_num == -1 && op->init_random_frequency == -1) {
+				LOG(LOG_FATAL, "init_random_num and init_random_frequency, please use only one.");
+			}
 		}
 	}
 	if (op->ds_lattice) {
@@ -215,6 +229,12 @@ static void verify_OPTION(struct OPTION *op) {
 		if (op->init_random) {
 			if (op->num_lattice_side * op->num_lattice_side <= op->init_random_frequency) {
 				LOG(LOG_FATAL, "nodes number <= init_random_frequency, not allowed");
+			}
+			if (op->init_random_num != -1 && op->init_random_frequency != -1) {
+				LOG(LOG_FATAL, "init_random_num and init_random_frequency, please use only one.");
+			}
+			if (op->init_random_num == -1 && op->init_random_frequency == -1) {
+				LOG(LOG_FATAL, "init_random_num and init_random_frequency, please use only one.");
 			}
 		}
 	}
@@ -235,7 +255,12 @@ static void info_OPTION(struct OPTION *op) {
 		LOG(LOG_INFO, "init with single infected node");
 	}
 	if (op->init_random) {
-		LOG(LOG_INFO, "init with random infected nodes, frequency is %d", op->init_random_frequency);
+		if (op->init_random_num != -1) {
+			LOG(LOG_INFO, "init with random infected nodes, num is %d", op->init_random_num);
+		}
+		if (op->init_random_frequency != -1) {
+			LOG(LOG_INFO, "init with random infected nodes, frequency is %d", op->init_random_frequency);
+		}
 	}
 
 	if (op->ds_crossover) LOG(LOG_INFO, "net will be crossover");

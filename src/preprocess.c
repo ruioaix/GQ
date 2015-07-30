@@ -30,9 +30,17 @@ int *preprocess_STATUS(NET *net, struct OPTION *op) {
 			status[net->maxId/2] = 1;
 		}
 		else if (op->init_random) {
-			int i;
-			for (i = 0; i < net->maxId / op->init_random_frequency; ++i) {
-				status[random()%net->maxId] = 1;
+			if (op->init_random_frequency != -1) {
+				int i;
+				for (i = 0; i < net->maxId / op->init_random_frequency; ++i) {
+					status[random()%net->maxId] = 1;
+				}
+			}
+			if (op->init_random_num != -1) {
+				int i;
+				for (i = 0; i < op->init_random_num; ++i) {
+					status[random()%net->maxId] = 1;
+				}
 			}
 		}
 	}
@@ -41,9 +49,17 @@ int *preprocess_STATUS(NET *net, struct OPTION *op) {
 			status[net->maxId/2 + op->num_lattice_side/2] = 1;
 		}
 		else if (op->init_random) {
-			int i;
-			for (i = 0; i < net->maxId / op->init_random_frequency; ++i) {
-				status[random()%net->maxId] = 1;
+			if (op->init_random_frequency != -1) {
+				int i;
+				for (i = 0; i < net->maxId / op->init_random_frequency; ++i) {
+					status[random()%net->maxId] = 1;
+				}
+			}
+			if (op->init_random_num != -1) {
+				int i;
+				for (i = 0; i < op->init_random_num; ++i) {
+					status[random()%net->maxId] = 1;
+				}
 			}
 		}
 	}
