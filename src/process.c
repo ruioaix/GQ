@@ -76,7 +76,9 @@ static void save_status(int maxId, int *status, int step, int width, int height)
 	FILE *fo = sfopen(fn, "w");
 	int j;
 	for (j = 0; j < maxId + 1; ++j) {
-		fprintf(fo, "%d\t%d\n", j, status[j]);
+		int x = j%width;
+		int y = j/width;
+		fprintf(fo, "%d\t%d\t%d\n", x, y, status[j]);
 	}
 	fclose(fo);
 
