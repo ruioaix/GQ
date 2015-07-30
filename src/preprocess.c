@@ -1,5 +1,6 @@
 #include "preprocess.h"
 #include "dataset.h"
+#include "random.h"
 
 NET *preprocess_NET(struct OPTION *op) {
 	struct DSATTR dsa;
@@ -28,6 +29,10 @@ int *preprocess_STATUS(NET *net, struct OPTION *op) {
 	}
 	if (op->ds_lattice) {
 		status[net->maxId/2 + op->num_lattice_side/2] = 1;
+		int i;
+		for (i = 0; i < net->maxId / 25; ++i) {
+			status[random()%net->maxId] = 1;
+		}
 	}
 	return status;
 }

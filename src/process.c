@@ -33,8 +33,7 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 		TIR[inode] += deltat;
 		if (TIR[inode] >= TI) {
 			recovered_new[newr++] = inode;
-			infected[i] = infected[oldi - 1];
-			--oldi;
+			infected[i] = infected[--oldi];
 			TIR[inode] = 0;
 		}
 		else {
@@ -47,8 +46,7 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 		TIR[rnode] += deltat;
 		if (TIR[rnode] >= TR) {
 			sus_new[news++] = rnode;
-			recovered[i] = recovered[oldr - 1];	
-			--oldr;
+			recovered[i] = recovered[--oldr];	
 			TIR[rnode] = 0;
 		}
 		else {
@@ -84,8 +82,14 @@ static void save_status(int maxId, int *status, int step, int width, int height)
 
 	BITMAP bp;
 	bp.width = width;
-	bp.height = height;
-	bp.pixels = scalloc(bp.width * bp.height, sizeof(PIXEL));
+	if (height == 1) {
+		bp.height = height * 200 ;
+		bp.pixels = scalloc(bp.width * bp.height * 200, sizeof(PIXEL));
+	}
+	else {
+		bp.height = height;
+		bp.pixels = scalloc(bp.width * bp.height, sizeof(PIXEL));
+	}
 	int i;
 	for (i = 0; i < maxId + 1; ++i) {
 		int x = i%width;
@@ -103,6 +107,26 @@ static void save_status(int maxId, int *status, int step, int width, int height)
 			LOG(LOG_FATAL, "wrong status");
 		}
 	}
+	if (height == 1) {
+		for (j = 1; j < 200; ++j) {
+			for (i = 0; i < maxId + 1; ++i) {
+				int x = i%width;
+				int y = i/width + j;
+				if (status[i] == 0) {
+					setPIXEL(&bp, x, y, 255, 255, 255);
+				}
+				else if (status[i] == 1) {
+					setPIXEL(&bp, x, y, 255, 0, 0);
+				}
+				else if (status[i] == 2) {
+					setPIXEL(&bp, x, y, 0, 0, 255);
+				}
+				else {
+					LOG(LOG_FATAL, "wrong status");
+				}
+			}
+		}
+	}
 	sprintf(fn, "result/STEP_%05d.png", step + 1);
 	savePNG(&bp, fn);
 	free(bp.pixels);
@@ -113,10 +137,11 @@ void process(NET *net, double rate_infect, double deltat, double TI, double TR, 
 	int *degree = net->degree;
 	int **rela = net->rela;
 
-	int *infected = smalloc((maxId + 1) * sizeof(int));
 	int numi = 0;
-	int *recovered = smalloc((maxId + 1) * sizeof(int));
+	int *infected = smalloc((maxId + 1) * sizeof(int));
 	int numr = 0;
+	int *recovered = smalloc((maxId + 1) * sizeof(int));
+
 	double *TIR = smalloc((maxId + 1) * sizeof(double));
 
 	int i;
@@ -130,11 +155,10 @@ void process(NET *net, double rate_infect, double deltat, double TI, double TR, 
 		}
 	}
 
+	int *sus_new = smalloc((maxId + 1) * sizeof(int));
 	int *infected_new = smalloc((maxId + 1) * sizeof(int));
 	int *recovered_new = smalloc((maxId + 1) * sizeof(int));
-	int *sus_new = smalloc((maxId + 1) * sizeof(int));
 	int *sign = smalloc((maxId + 1) * sizeof(int));
-
 
 	for (i = 0; i < STEP; ++i) {
 		process_core(maxId, degree, rela, rate_infect, deltat, TI, TR, &numi, infected, &numr, recovered, status, sign, infected_new, recovered_new, sus_new, TIR);
