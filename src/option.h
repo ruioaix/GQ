@@ -21,6 +21,10 @@ struct OPTION {
 	double TI;
 	double TR;
 	int STEP;
+
+	bool init_single;
+	bool init_random;
+	int init_random_frequency;
 };
 
 struct OPTION *setOPTION(int argc, char **argv);

@@ -24,14 +24,27 @@ NET *preprocess_NET(struct OPTION *op) {
 // 0:S, 1:I, 2:R
 int *preprocess_STATUS(NET *net, struct OPTION *op) {
 	int *status = scalloc(net->maxId + 1, sizeof(int));
+	
 	if (op->ds_line) {
-		status[net->maxId/2] = 1;
+		if (op->init_single) {
+			status[net->maxId/2] = 1;
+		}
+		else if (op->init_random) {
+			int i;
+			for (i = 0; i < net->maxId / op->init_random_frequency; ++i) {
+				status[random()%net->maxId] = 1;
+			}
+		}
 	}
-	if (op->ds_lattice) {
-		status[net->maxId/2 + op->num_lattice_side/2] = 1;
-		int i;
-		for (i = 0; i < net->maxId / 25; ++i) {
-			status[random()%net->maxId] = 1;
+	else if (op->ds_lattice) {
+		if (op->init_single) {
+			status[net->maxId/2 + op->num_lattice_side/2] = 1;
+		}
+		else if (op->init_random) {
+			int i;
+			for (i = 0; i < net->maxId / op->init_random_frequency; ++i) {
+				status[random()%net->maxId] = 1;
+			}
 		}
 	}
 	return status;

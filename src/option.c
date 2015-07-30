@@ -32,6 +32,11 @@ static void display_usage(void) {
 	puts("  --TI doubleValue:  ");
 	puts("  --TR doubleValue:  ");
 	puts("  --STEP intValue:  ");
+	puts("  --init-single:  only one infected node exists in the beginning.");
+	puts("  --init-random:  random infected node exists in the beginning.");
+	puts("  --init-random-frequency intValue:  ");
+	puts("       only available when --init-random is enabled.");
+	puts("       if set to 25 (default), it means that in the beginning, there will be one infected node in every 25 nodes.");
 	puts("");
 	exit(0);
 }
@@ -52,6 +57,10 @@ static void init_OPTION(struct OPTION *op) {
 	op->TI = 1;
 	op->TR = 1;	
 	op->STEP = 1000;
+
+	op->init_single = false;
+	op->init_random = false;
+	op->init_random_frequency = 25;
 }
 
 void freeOPTION(struct OPTION *op) {
@@ -86,6 +95,10 @@ struct OPTION *setOPTION(int argc, char **argv) {
 		{"TI", required_argument, NULL, 306},
 		{"TR", required_argument, NULL, 307},
 		{"STEP", required_argument, NULL, 304},
+
+		{"init-single", no_argument, NULL, 308},
+		{"init-random", no_argument, NULL, 309},
+		{"init-random-frequency", required_argument, NULL, 310},
 
 		{0, 0, 0, 0},
 	};
@@ -142,6 +155,15 @@ struct OPTION *setOPTION(int argc, char **argv) {
 			case 304:
 				op->STEP = strtol(optarg, NULL, 10);
 				break;
+			case 308:
+				op->init_single = true;
+				break;
+			case 309:
+				op->init_random = true;
+				break;
+			case 310:
+				op->init_random_frequency = strtol(optarg, NULL, 10);
+				break;
 
 			case '?':
 				break;
@@ -168,14 +190,32 @@ static void verify_OPTION(struct OPTION *op) {
 		LOG(LOG_FATAL, "Sorry, for now you can only choose one kind of dataset: line or lattice.");
 	}
 
+	if (op->init_single && op->init_random) {
+		LOG(LOG_FATAL, "init with both single and random is not allowed.");
+	}
+	
+	if (!(op->init_single || op->init_random)) {
+		LOG(LOG_FATAL, "Please choose what kind of initalize you want to carry.");
+	}
+
 	if (op->ds_line) {
 		if (op->num_line_node < 2) {
 			LOG(LOG_FATAL, "the nodes number of line dataset is set to %d, are you sure?", op->num_line_node);
+		}
+		if (op->init_random) {
+			if (op->num_line_node <= op->init_random_frequency) {
+				LOG(LOG_FATAL, "num_line_node <= init_random_frequency, not allowed");
+			}
 		}
 	}
 	if (op->ds_lattice) {
 		if (op->num_lattice_side < 2) {
 			LOG(LOG_FATAL, "the side nodes number of lattice dataset is set to %d, are you sure?", op->num_lattice_side);
+		}
+		if (op->init_random) {
+			if (op->num_lattice_side * op->num_lattice_side <= op->init_random_frequency) {
+				LOG(LOG_FATAL, "nodes number <= init_random_frequency, not allowed");
+			}
 		}
 	}
 
@@ -189,6 +229,13 @@ static void info_OPTION(struct OPTION *op) {
 	if (op->ds_lattice) {
 		LOG(LOG_INFO, "lattice dataset: used");
 		LOG(LOG_INFO, "lattice ds, sides number is %d", op->num_lattice_side);
+	}
+
+	if (op->init_single) {
+		LOG(LOG_INFO, "init with single infected node");
+	}
+	if (op->init_random) {
+		LOG(LOG_INFO, "init with random infected nodes, frequency is %d", op->init_random_frequency);
 	}
 
 	if (op->ds_crossover) LOG(LOG_INFO, "net will be crossover");
