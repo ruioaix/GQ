@@ -29,7 +29,7 @@ struct LineFile * lattice2dDS(int L, struct DSATTR dsa) {
 		linesNum *= 2;
 	}
 
-	LOG(LOG_INFO, "Generate 2D Lattice, %s, %s, L: %d, N: %d, linesNum: %ld\n", whatnetattr(dsa.crossover), whatnetattr(dsa.direct), L, N, linesNum);
+	LOG(LOG_INFO, "Generate 2D Lattice, %s, %s, L: %d, N: %d, linesNum: %ld.", whatnetattr(dsa.crossover), whatnetattr(dsa.direct), L, N, linesNum);
 
 	int *i1 = smalloc(linesNum * sizeof(int));
 	int *i2 = smalloc(linesNum * sizeof(int));
