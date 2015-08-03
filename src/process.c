@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "spng.h"
 
 void process_core(int maxId, int *degree, int **rela, double rate_infect, double deltat, double TI, double TR, int *numi, int *infected, int *numr, int *recovered, int *status, int *sign, int*infected_new, int *recovered_new, int *sus_new, double *TIR) {
 	int i, j, k;
@@ -70,7 +69,7 @@ void process_core(int maxId, int *degree, int **rela, double rate_infect, double
 	*numr = oldr + newr;
 }
 
-static void save_status(int maxId, int *status, int step, int width, int height) {
+static void save_status(int maxId, int *status, int step, int width) {
 	char fn[100];
 	sprintf(fn, "result/STEP_%d.txt", step + 1);
 	FILE *fo = sfopen(fn, "w");
@@ -81,57 +80,6 @@ static void save_status(int maxId, int *status, int step, int width, int height)
 		fprintf(fo, "%d\t%d\t%d\n", x, y, status[j]);
 	}
 	fclose(fo);
-
-	BITMAP bp;
-	bp.width = width;
-	if (height == 1) {
-		bp.height = height * 200 ;
-		bp.pixels = scalloc(bp.width * bp.height * 200, sizeof(PIXEL));
-	}
-	else {
-		bp.height = height;
-		bp.pixels = scalloc(bp.width * bp.height, sizeof(PIXEL));
-	}
-	int i;
-	for (i = 0; i < maxId + 1; ++i) {
-		int x = i%width;
-		int y = i/width;
-		if (status[i] == 0) {
-			setPIXEL(&bp, x, y, 255, 255, 255);
-		}
-		else if (status[i] == 1) {
-			setPIXEL(&bp, x, y, 255, 0, 0);
-		}
-		else if (status[i] == 2) {
-			setPIXEL(&bp, x, y, 0, 0, 255);
-		}
-		else {
-			LOG(LOG_FATAL, "wrong status");
-		}
-	}
-	if (height == 1) {
-		for (j = 1; j < 200; ++j) {
-			for (i = 0; i < maxId + 1; ++i) {
-				int x = i%width;
-				int y = i/width + j;
-				if (status[i] == 0) {
-					setPIXEL(&bp, x, y, 255, 255, 255);
-				}
-				else if (status[i] == 1) {
-					setPIXEL(&bp, x, y, 255, 0, 0);
-				}
-				else if (status[i] == 2) {
-					setPIXEL(&bp, x, y, 0, 0, 255);
-				}
-				else {
-					LOG(LOG_FATAL, "wrong status");
-				}
-			}
-		}
-	}
-	sprintf(fn, "result/STEP_%05d.png", step + 1);
-	savePNG(&bp, fn);
-	free(bp.pixels);
 }
 
 void process(NET *net, double rate_infect, double deltat, double TI, double TR, int STEP, int *status, int width, int height) {
@@ -164,7 +112,7 @@ void process(NET *net, double rate_infect, double deltat, double TI, double TR, 
 
 	for (i = 0; i < STEP; ++i) {
 		process_core(maxId, degree, rela, rate_infect, deltat, TI, TR, &numi, infected, &numr, recovered, status, sign, infected_new, recovered_new, sus_new, TIR);
-		save_status(maxId, status, i, width, height);
+		save_status(maxId, status, i, width);
 	}
 
 	free(TIR);
