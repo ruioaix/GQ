@@ -3,3 +3,4 @@ bin/
 STEP*
 *.mp4
 result_*
+.DS_Store
